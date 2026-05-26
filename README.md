@@ -1,12 +1,17 @@
-# Online Retail Executive Dashboard (2010 - 2011)
+# 🛍️ Online Retail Executive Dashboard (2010 - 2011)
+> **An End-to-End Online Retail Executive Dashboard (2010 - 2011) Project: Ms. Excel ➡️ SQL (BigQuery) ➡️ Python ➡️ Power BI**
+---
 
-## Project Overview
+## 📌 Project Overview
+
+> 📦 **Dataset:** 500K+ raw transactional records | 38 countries | Dec 2010 – Dec 2011 | Source: UK-based Non-Store Online Retailer
 
 This project delivers an end-to-end data pipeline and analysis workflow, transforming a raw, chaotic global retail dataset into an enterprise-grade interactive dashboard. The project spans across the complete data analysis lifecycle: **Data Inspection** (Excel), **Data Cleaning & Transformation** (SQL), **Exploratory Data Analysis** (Python), and **Data Modeling & Visualization** (Power BI).
+The primary focus is to convert 500K+ anomalous transactional records into a **reliable, single source of truth** — enabling executive-level monitoring of revenue performance, seasonal trends, and geographical market distributions across 38 countries.
 
 ---
 
-## Objectives
+## 🎯 Objectives
 
 - **Monitor Executive KPIs:** Track real-time Revenue, Items Sold, Total Orders, and Unique Customer growth.
 - **Identify Seasonality & Trends:** Analyze Monthly Sales Performance to identify peak periods and operational cut-offs.
@@ -15,7 +20,7 @@ This project delivers an end-to-end data pipeline and analysis workflow, transfo
 
 ---
 
-## Tools & Technologies
+## 🛠️ Tools & Technologies
 
 | Phase | Tools | Key Functions |
 | :--- | :--- | :--- |
@@ -26,7 +31,7 @@ This project delivers an end-to-end data pipeline and analysis workflow, transfo
 
 ---
 
-## Project Workflow
+## 🔄 Project Workflow
 
 1. **Data Inspection (Excel):** Evaluated raw data structures, identified critical system anomalies, and mapped out data transformation requirements.
 2. **Data Cleaning (SQL):** Executed advanced queries to filter out cancelled/test transactions and standardized field formats.
@@ -35,16 +40,22 @@ This project delivers an end-to-end data pipeline and analysis workflow, transfo
 
 ---
 
-## Data Cleaning & SQL Implementation
+## 🧹 Data Cleaning & SQL Implementation
 
-The dataset cleaning process included:
-- Removing cancelled transactions
-- Removing transactions with zero or negative values
-- Handling missing values
-- Removing duplicate records
-- Standardizing data types
-- Creating a clean final dataset for analysis
+The raw dataset contained multiple critical anomalies requiring advanced filtering logic:
 
+- **Cancelled Transactions** — Excluded all invoices prefixed with `'C'` using `STARTS_WITH()` 
+  to eliminate reversal records from revenue calculations.
+- **Invalid StockCode Formats** — Applied `REGEXP_CONTAINS` to retain only valid 5-digit 
+  product codes, filtering out system-generated and test entries.
+- **Anomalous Descriptions** — Filtered entries containing numeric-only strings, `?` 
+  characters, and keywords like `MISSING`, `LOST`, and `DAMAG` via regex pattern matching.
+- **Zero & Negative Values** — Enforced `Quantity > 0` and `UnitPrice > 0` constraints 
+  to exclude non-commercial transactions.
+- **Missing CustomerID** — Applied `NULLIF()` to remove unidentifiable transactions.
+- **Unspecified Country** — Excluded records tagged `'Unspecified'` to ensure 
+  geographical analysis accuracy.
+  
 ---
 
 <details>
@@ -85,13 +96,14 @@ WHERE
 ```
 </details>
 
-<details>
-<summary>📂 Click to expand DAX Query</summary>
-
-## DAX & Data Modeling Features
+## 📊 DAX & Data Modeling Features
 
 To build an "anti-error" dashboard capable of dynamic filtering across any timeframe or market without breaking the UI, advanced Time Intelligence DAX Measures were engineered:
 -- Example of Month-over-Month (MoM) Customer Growth Logic:
+
+<details>
+<summary>📂 Click to expand DAX Query</summary>
+
 ```dax
 Total Customers = DISTINCTCOUNT('online_retail_final'[CustomerID])
 
@@ -116,7 +128,98 @@ DIVIDE(
 
 ---
 
-## Dashboard Features
+## 🐍 Python EDA — Key Visualizations
+
+To uncover sales patterns, market distributions, and revenue correlations, exploratory data analysis was conducted using `Pandas`, `Matplotlib`, and `Seaborn`. Below are the four most impactful analyses:
+
+<details>
+<summary>📂 Click to expand Python EDA Snippets</summary>
+
+### 1. 📈 Monthly Revenue Trend
+Reveals the Q4 sales surge pattern and confirms the December 2011 data cut-off — validating that the sharp drop is a technical limitation, not an organic sales decline.
+
+```python
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+
+monthly_sales = (
+    df.groupby(df['InvoiceDate'].dt.to_period('M'))['Revenue']
+    .sum()
+)
+
+monthly_sales.plot(figsize=(12,5))
+
+plt.title('Monthly Revenue Trend')
+plt.xlabel('Month')
+plt.ylabel('Revenue (£)')
+
+plt.show()
+```
+
+---
+
+### 2. 🌍 Top 10 Countries by Revenue
+Confirms the UK as the absolute dominant domestic market, while surfacing Ireland and the Netherlands as the highest-potential international expansion targets.
+
+```python
+top_country = (
+    df.groupby('Country')['Revenue']
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+top_country.plot(kind='bar', figsize=(10,5))
+
+plt.title('Top 10 Countries by Revenue')
+plt.xlabel('Country')
+plt.ylabel('Revenue (£)')
+plt.xticks(rotation=45)
+
+plt.show()
+```
+
+---
+
+### 3. 🛒 Top 10 Best Selling Products
+Identifies the highest-volume products by quantity sold, enabling inventory prioritization and supply chain optimization ahead of Q4 cycles.
+
+```python
+top_products = (
+    df.groupby('Description')['Quantity']
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+top_products.plot(kind='barh', figsize=(10,5))
+
+plt.title('Top 10 Best Selling Products')
+plt.xlabel('Total Quantity Sold')
+plt.ylabel('Product')
+
+plt.show()
+```
+
+---
+
+### 4. 🔥 Correlation Heatmap
+Analyzes the relationship between Quantity, UnitPrice, and Revenue — revealing which transactional variables are the strongest revenue drivers.
+
+```python
+correlation = df[['Quantity', 'UnitPrice', 'Revenue']].corr()
+
+plt.figure(figsize=(6,4))
+
+sns.heatmap(correlation, annot=True)
+
+plt.title('Correlation Heatmap')
+plt.show()
+```
+</details>
+
+---
+
+## ⚙️ Dashboard Features
 
 - KPI Cards (Revenue, Quantity, Orders, Customers)
 - Monthly Sales Trend Analysis
@@ -126,23 +229,31 @@ DIVIDE(
 
 ---
 
-## Dashboard Preview
+## 🖥️ Dashboard Preview
 ![Dashboard Preview](images/online_retail_dashboard_preview.png)
 
 ---
 
-## Key Business Insights
+## 💡 Key Business Insights
 
-- Market Revenue Concentration: The United Kingdom stands as the absolute core domestic market, contributing over £6.7M to the global revenue. Eire (Ireland) and the Netherlands follow closely as the top two highest-potential international markets, making them primary targets for localized expansion.
-- Q4 Sales Surge (Seasonality): Monthly sales maintained a steady baseline of £0.5M - £0.6M for the majority of the year, before experiencing a massive Q4 escalation in October and November, peaking at ~£1.1M. Supply chain, inventory management, and logistics must be heavily optimized ahead of Q4 cycles in subsequent years.
-- Customer & Order Stability: Total Customers (4K) and Total Orders (18K) moved in perfect synchronization with monthly transaction spikes. This indicates a highly reliable and repeating customer base, reflecting healthy retention rates and a sustained positive MoM customer growth of 0.96% overall.
-- December Data Cut-Off Notice: The abrupt downward slope at the very end of the monthly trend chart is not an organic decline in sales performance. It represents a strict technical data cut-off, as the database only contains records up until December 9, 2011.
+- 🇬🇧 **Market Concentration:** The **UK dominates with £6.7M+** in total revenue — dwarfing all international markets combined. Eire (Ireland) and the Netherlands follow as the top two highest-potential international expansion targets.
+- 📈 **Q4 Sales Surge:** Monthly sales held a steady baseline of **£0.5M–£0.6M** before a massive escalation in October–November, peaking at **~£1.1M**. Supply chain and logistics must be optimized ahead of Q4 cycles.
+- 👥 **Customer & Order Stability:** **4K customers** and **18K orders** moved in sync with transaction spikes, reflecting healthy retention and a sustained **+0.96% MoM customer growth**.
+- ⚠️ **December Data Cut-Off:** The sharp drop at year-end is a **technical data cut-off (Dec 9, 2011)** — not an organic sales decline.
 
 ---
 
-## Conclusion
+## 🏁 Conclusion
 
 This end-to-end project demonstrates the successful conversion of raw, transactional data into an optimized, production-ready enterprise dashboard. By resolving data quality issues in SQL/Python and building a proper data model in Power BI, the final artifact serves as a reliable, single source of truth for executive business monitoring and strategic forecasting.
+
+---
+
+## 📚 What I Learned
+
+- Distinguishing a data cut-off from an organic sales decline is critical for honest, non-misleading reporting
+- Star Schema + Calendar Table is what unlocks Time Intelligence DAX — flat tables simply can't support MoM/YoY metrics
+- `REGEXP_CONTAINS` in BigQuery is far more robust than simple `LIKE` for catching text anomalies in large dirty datasets (500K+ rows)
 
 ---
 
