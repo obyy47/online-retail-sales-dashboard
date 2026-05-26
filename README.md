@@ -110,11 +110,8 @@ DIVIDE(
 ## Key Business Insights
 
 - Market Revenue Concentration: The United Kingdom stands as the absolute core domestic market, contributing over £6.7M to the global revenue. Eire (Ireland) and the Netherlands follow closely as the top two highest-potential international markets, making them primary targets for localized expansion.
-  
 - Q4 Sales Surge (Seasonality): Monthly sales maintained a steady baseline of £0.5M - £0.6M for the majority of the year, before experiencing a massive Q4 escalation in October and November, peaking at ~£1.1M. Supply chain, inventory management, and logistics must be heavily optimized ahead of Q4 cycles in subsequent years.
-  
 - Customer & Order Stability: Total Customers (4K) and Total Orders (18K) moved in perfect synchronization with monthly transaction spikes. This indicates a highly reliable and repeating customer base, reflecting healthy retention rates and a sustained positive MoM customer growth of 0.96% overall.
-  
 - December Data Cut-Off Notice: The abrupt downward slope at the very end of the monthly trend chart is not an organic decline in sales performance. It represents a strict technical data cut-off, as the database only contains records up until December 9, 2011.
 
 ## Conclusion
